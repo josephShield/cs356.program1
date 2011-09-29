@@ -32,14 +32,14 @@ public class client {
 		int my_port = sock.getLocalPort();
 		
 		out.println("ex0 128.83.120.202-35600 "+ my_ip + "-" + my_port + " 5555 J.A.Shield\n");
-		
+
 		//BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-		System.out.println(in.readLine() + "*");
-		System.out.println(in.readLine()+ "*");
-		/*String response = "";
+		//System.out.println(in.readLine() + "*");
+		//System.out.println(in.readLine()+ "*");
+		String response = "";
 		while((response = in.readLine()) != ""){
-			System.out.println(response);
-		}*/
+			System.out.println(response + "*");
+		}
 		
 		
 		
