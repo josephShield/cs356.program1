@@ -25,9 +25,10 @@ public class client {
 		// TODO Do some of the same things as in ex0() but also have a while loop checking the input from the 
 		// server to see if it matches (regEx) the required properly formated awk string.
 		Socket sockLeft = null;
+		PrintWriter out = null; // output stream which will be attached to the socket sockLeft
+		BufferedReader in = null; // input stream which will be attached to the socket sockLeft
+		
 		ServerSocket sockRight = null;
-		PrintWriter out = null; // output stream which will be attached to the socket
-		BufferedReader in = null; // input stream which will be attached to the socket
 		
 		//Initialize the client socket (sockLeft)
 		try{
@@ -56,10 +57,36 @@ public class client {
 		//**Read responses**
 		String firstResponse = in.readLine(); // receive first awk 
 		String secondResponse = in.readLine(); // receive second awk
+		//**Print responses**
+		System.out.println(firstResponse + "*");
+		System.out.println(secondResponse+ "**");
 		
-		//Wait for connection to serversocket
+		//**Wait to accept a connection over the ServerSocket sockRight**
+		Socket sockDirty = null; // This socket is connected to the server venice.cs.utexas.edu
+		try {
+		    sockDirty = sockRight.accept();
+		} catch (IOException e) {
+		    System.out.println("Accept failed: " + sockRight.getLocalPort());
+		    System.exit(-1);
+		}
+		//**Connection has now been established on the second line. Set up readers for output and input**
+		PrintWriter outDirty = new PrintWriter(sockDirty.getOutputStream(), true);
+		BufferedReader inDirty = new BufferedReader( new InputStreamReader( sockDirty.getInputStream()) );
 		
+		System.out.println(inDirty.readLine());
 		
+
+		
+		outDirty.close();
+		inDirty.close();
+		sockDirty.close();
+		sockRight.close();
+		
+		//*Done, close connections**
+		out.close();
+		in.close();
+		sockLeft.close();
+		System.out.println("Done.");
 	}
 
 	//This is the method to run exercise zero, the 4 way handshake.
