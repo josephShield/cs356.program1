@@ -22,8 +22,6 @@ public class client {
 	
 	//This is the method to run exercise one, where the client acts like a server
 	private static void ex1() throws IOException {
-		// TODO Do some of the same things as in ex0() but also have a while loop checking the input from the 
-		// server to see if it matches (regEx) the required properly formated awk string.
 		Socket sockLeft = null;
 		PrintWriter out = null; // output stream which will be attached to the socket sockLeft
 		BufferedReader in = null; // input stream which will be attached to the socket sockLeft
@@ -50,16 +48,28 @@ public class client {
 		    System.exit(-1);
 		}
 		
+		//**Get my ip address and the port number for the server socket**
 		String my_ip = InetAddress.getLocalHost().getHostAddress();
 		int my_port = sockRight.getLocalPort(); // Now the port we send is for the SERVER socket, so that the venice server will connect to our serverSocket
 		
 		out.println("ex1 128.83.120.202-35600 "+ my_ip + "-" + my_port + " " + userNum + " J.A.Shield\n"); //Send first request
 		//**Read responses**
-		String firstResponse = in.readLine(); // receive first awk 
+		String firstResponse = in.readLine(); // receive first awk (Note that nothing is done with this since it's just empty string.)
 		String secondResponse = in.readLine(); // receive second awk
 		//**Print responses**
-		System.out.println(firstResponse + "*");
-		System.out.println(secondResponse+ "**");
+		System.out.println(secondResponse);
+		
+		String[] pieces = secondResponse.split("\\s+");
+		if(pieces.length != 4 || !pieces[0].equals("OK")){ // If we don't get OK or there is some other problem, exit.
+			System.err.println("Cannot continue due to improper server response.");
+			out.close();
+			in.close();
+			sockLeft.close();		//Close everything
+			sockRight.close();
+			System.exit(1);
+		}
+		//Now we're sure that the server's response was "OK" so we can go ahead and grab the server number.
+		int firstServNum = Integer.parseInt(pieces[3]);
 		
 		//**Wait to accept a connection over the ServerSocket sockRight**
 		Socket sockDirty = null; // This socket is connected to the server venice.cs.utexas.edu
@@ -73,14 +83,35 @@ public class client {
 		PrintWriter outDirty = new PrintWriter(sockDirty.getOutputStream(), true);
 		BufferedReader inDirty = new BufferedReader( new InputStreamReader( sockDirty.getInputStream()) );
 		
-		System.out.println(inDirty.readLine());
+		String servResponse = inDirty.readLine();//Read in what the server sends, saving it so we can parse the random int it sent.
+		//System.out.println(servResponse);
 		
-
+		String[] piecesZwei = servResponse.split("\\s+");
+		if(piecesZwei.length != 5){ // Make sure the server sent the correct response: "CS 356 server calling SOME_NUM"
+			System.err.println("Cannot continue due to improper server response.");
+			outDirty.close();
+			inDirty.close();
+			out.close();
+			in.close();
+			sockLeft.close();		//Close everything
+			sockRight.close();
+			System.exit(1);
+		}
+		int secondServNum = Integer.parseInt(piecesZwei[4]);
+		System.out.println("CS 356 server sent " + secondServNum);
 		
+		//Now send the two server numbers back to the server venice.
+		String response = (firstServNum + 1) + " " + (secondServNum + 1) + "\n";
+		outDirty.println(response); // Send the response
+		
+		// Now the venice server should terminate this connection, so we can close all these things
 		outDirty.close();
 		inDirty.close();
 		sockDirty.close();
 		sockRight.close();
+		
+		//**The server should send us confirmation on our original socket, so let's listen for that**
+		System.out.println(in.readLine());
 		
 		//*Done, close connections**
 		out.close();
@@ -113,12 +144,11 @@ public class client {
 		out.println("ex0 128.83.120.202-35600 "+ my_ip + "-" + my_port + " " + userNum + " J.A.Shield\n"); //Send first request
 		
 		//**Read responses**
-		String firstResponse = in.readLine(); // receive first awk 
+		String firstResponse = in.readLine(); // receive first awk (Note that nothing is done with this since it's just empty string.)
 		String secondResponse = in.readLine(); // receive second awk
 
 		
-		System.out.println(firstResponse + "*");
-		System.out.println(secondResponse+ "**");
+		System.out.println(secondResponse);
 		
 		// Split the server's second response so we can use the userID and serverID
 		String[] pieces = secondResponse.split("\\s+");
@@ -135,7 +165,7 @@ public class client {
 		out.println("ex0 " + pieces[1] + " " + incServID + "\n"); // Send awk
 		
 		String thirdResponse = in.readLine(); // receive third awk
-		System.out.println(thirdResponse + "***");
+		System.out.println(thirdResponse);
 		
 		if(!thirdResponse.split("\\s+")[9].equals("OK")){
 			System.err.println("Server response not 'OK'. Error! Aborting");
