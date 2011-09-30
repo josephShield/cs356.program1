@@ -20,32 +20,45 @@ public class client {
 			in = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 			
 		}catch (UnknownHostException e){
-			System.out.println("Can't find host: venice.cs.utexas.edu");
 			System.err.println("Can't find host: venice.cs.utexas.edu");
 			System.exit(1);
 		} catch (IOException e) {
-			System.out.println("Can't get an I/O connection to host: venice.cs.utexas.edu");
 			System.err.println("Can't get an I/O connection to host: venice.cs.utexas.edu");
 			System.exit(1);
 		}
 		String my_ip = InetAddress.getLocalHost().getHostAddress();
 		int my_port = sock.getLocalPort();
 		
-		out.println("ex0 128.83.120.202-35600 "+ my_ip + "-" + my_port + " 5555 J.A.Shield\n");
+		out.println("ex0 128.83.120.202-35600 "+ my_ip + "-" + my_port + " 5555 J.A.Shield\n"); //Send first request
+		
+		//**Read responses**
+		String firstResponse = in.readLine(); // receive first awk 
+		String secondResponse = in.readLine(); // receive second awk
 
-		//BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
-		//System.out.println(in.readLine() + "*");
-		//System.out.println(in.readLine()+ "*");
-		String response = "";
-		while((response = in.readLine()) != ""){
-			System.out.println(response + "*");
+		
+		System.out.println(firstResponse + "*");
+		System.out.println(secondResponse+ "**");
+		
+		// Split the server's second response so we can use the userID and serverID
+		String[] pieces = secondResponse.split("\\s+");
+		if(pieces.length != 4 || !pieces[0].equals("OK")){ // If we don't get OK or there is some other problem, exit.
+			System.err.println("Cannot continue due to improper server response.");
+			System.exit(1);
 		}
+		
+		int incServID = Integer.parseInt(pieces[3]) + 1; // Get the server ID, convert to an int, then increment 
+		
+		out.println("ex0 " + pieces[1] + " " + incServID + "\n"); // Send awk
+		
+		String thirdResponse = in.readLine(); // receive third awk
+		System.out.println(thirdResponse + "***");
 		
 		
 		
 		out.close();
 		in.close();
 		sock.close();
+		System.out.println("Done.");
 	}
 
 }
