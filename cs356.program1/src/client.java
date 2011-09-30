@@ -5,11 +5,30 @@ import java.net.*;
 public class client {
 	
 	/**
-	 * @param args
+	 * @param args Should be a single input either 0 or 1 depending on which excersize should be run.
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
+		if(args[0].equals("0")){
+			ex0();
+		}else if(args[0].equals("1")){
+			ex1();
+		}else{
+			System.out.println("Error, invalid arguments. Please enter either 0 or 1.");
+			System.exit(1);
+		}
 		
+	}
+	
+	//This is the method to run exercise one, where the client acts like a server
+	private static void ex1() {
+		// TODO Do some of the same things as in ex0() but also have a while loop checking the input from the 
+		// server to see if it matches (regEx) the required properly formated awk string.
+		
+	}
+
+	//This is the method to run exercise zero, the 4 way handshake.
+	public static void ex0() throws IOException{
 		Socket sock = null;
 		PrintWriter out = null; // output stream which will be attached to the socket
 		BufferedReader in = null; // input stream which will be attached to the socket
@@ -43,6 +62,9 @@ public class client {
 		String[] pieces = secondResponse.split("\\s+");
 		if(pieces.length != 4 || !pieces[0].equals("OK")){ // If we don't get OK or there is some other problem, exit.
 			System.err.println("Cannot continue due to improper server response.");
+			out.close();
+			in.close();
+			sock.close();
 			System.exit(1);
 		}
 		
@@ -53,6 +75,13 @@ public class client {
 		String thirdResponse = in.readLine(); // receive third awk
 		System.out.println(thirdResponse + "***");
 		
+		if(!thirdResponse.split("\\s+")[9].equals("OK")){
+			System.err.println("Server response not 'OK'. Error! Aborting");
+			out.close();
+			in.close();
+			sock.close();
+			System.exit(1);
+		}
 		
 		
 		out.close();
